@@ -1,0 +1,29 @@
+{
+  "name": "@creatoriq/ai-services",
+  "version": "1.0.0",
+  "description": "AI integration services for CreatorIQ platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": ["ai", "openai", "claude", "analysis"],
+  "author": "Alankar",
+  "license": "MIT",
+  "dependencies": {
+    "openai": "^4.0.0",
+    "@anthropic-ai/sdk": "^0.20.0",
+    "@creatoriq/shared-types": "1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "files": [
+    "dist"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "creatoriq",
+  "version": "1.0.0",
+  "description": "AI-powered YouTube creator analysis platform",
+  "main": "index.js",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspaces",
+    "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
+    "type-check": "npm run type-check --workspaces",
+    "clean": "npm run clean --workspaces && rm -rf node_modules",
+    "test": "npm run test --workspaces"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "keywords": ["ai", "youtube", "creator", "analysis", "typescript"],
+  "author": "Alankar",
+  "license": "MIT"
+}

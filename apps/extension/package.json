@@ -1,0 +1,30 @@
+{
+  "name": "@creatoriq/extension",
+  "version": "1.0.0",
+  "description": "CreatorIQ Chrome extension built with Plasmo",
+  "private": true,
+  "scripts": {
+    "build": "plasmo build",
+    "dev": "plasmo dev",
+    "package": "plasmo package",
+    "clean": "rm -rf build .plasmo"
+  },
+  "dependencies": {
+    "plasmo": "0.84.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "@creatoriq/shared-types": "1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/chrome": "^0.0.246"
+  },
+  "manifest": {
+    "host_permissions": [
+      "https://www.youtube.com/*"
+    ]
+  }
+}

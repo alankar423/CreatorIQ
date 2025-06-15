@@ -1,0 +1,23 @@
+{
+  "name": "@creatoriq/shared-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types for CreatorIQ platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": ["typescript", "types", "shared"],
+  "author": "Alankar",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist"
+  ]
+}

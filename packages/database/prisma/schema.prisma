@@ -1,0 +1,296 @@
+// CreatorIQ Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//============================================================================
+// USER MANAGEMENT & AUTHENTICATION
+//============================================================================
+
+model User {
+  id               String             @id @default(cuid())
+  email            String             @unique
+  name             String
+  avatarUrl        String?
+  
+  // Authentication
+  googleId         String?            @unique
+  emailVerified    DateTime?
+  
+  // Subscription & Billing
+  subscriptionStatus SubscriptionStatus @default(FREE)
+  subscriptionId   String?            @unique // Stripe subscription ID
+  customerId       String?            @unique // Stripe customer ID
+  
+  // Usage Quotas
+  monthlyQuota     Int                @default(5) // Free tier: 5 analyses/month
+  usedQuota        Int                @default(0)
+  quotaResetDate   DateTime           @default(now())
+  
+  // Timestamps
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  lastLoginAt      DateTime?
+  
+  // Relations
+  analyses         Analysis[]
+  savedChannels    SavedChannel[]
+  usageLogs        UsageLog[]
+  feedbackSubmissions Feedback[]
+
+  @@map("users")
+}
+
+enum SubscriptionStatus {
+  FREE
+  CREATOR // $29/month - 50 analyses
+  PRO     // $49/month - unlimited analyses
+  CANCELLED
+  PAST_DUE
+  UNPAID
+
+  @@map("subscription_status")
+}
+
+//============================================================================
+// YOUTUBE CHANNEL DATA
+//============================================================================
+
+model Channel {
+  id                 String       @id @default(cuid())
+  
+  // YouTube Data
+  youtubeChannelId   String       @unique
+  title              String
+  description        String?      @db.Text
+  customUrl          String?
+  
+  // Statistics
+  subscriberCount    BigInt       @default(0)
+  videoCount         Int          @default(0)
+  viewCount          BigInt       @default(0)
+  
+  // Metadata
+  publishedAt        DateTime
+  thumbnailUrl       String?
+  country            String?
+  language           String?
+  
+  // Content Classification
+  topics             String[]     // YouTube topics/categories
+  contentType        ContentType  @default(MIXED)
+  uploadFrequency    UploadFrequency?
+  averageViews       BigInt?
+  averageEngagement  Float?
+  
+  // Analysis Data
+  lastAnalyzedAt     DateTime?
+  analysisCount      Int          @default(0)
+  
+  // Timestamps
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  
+  // Relations
+  analyses           Analysis[]
+  savedBy            SavedChannel[]
+
+  @@map("channels")
+}
+
+enum ContentType {
+  EDUCATIONAL
+  ENTERTAINMENT
+  GAMING
+  MUSIC
+  NEWS
+  SPORTS
+  TECHNOLOGY
+  LIFESTYLE
+  BUSINESS
+  MIXED
+
+  @@map("content_type")
+}
+
+enum UploadFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  IRREGULAR
+
+  @@map("upload_frequency")
+}
+
+//============================================================================
+// AI ANALYSIS DATA
+//============================================================================
+
+model Analysis {
+ id              String            @id @default(cuid())
+ 
+ // Relations
+ userId          String
+ channelId       String
+ user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+ channel         Channel           @relation(fields: [channelId], references: [id])
+ 
+ // Analysis Metadata
+ analysisType    AnalysisType
+ status          AnalysisStatus    @default(PENDING)
+ 
+ // AI Analysis Results
+ strengthsAnalysis    String?      @db.Text
+ weaknessesAnalysis   String?      @db.Text
+ opportunitiesAnalysis String?     @db.Text
+ competitorAnalysis   String?      @db.Text
+ contentStrategy      String?      @db.Text
+ 
+ // Metrics and Scores
+ overallScore         Float?
+ contentQualityScore  Float?
+ engagementScore      Float?
+ growthPotentialScore Float?
+ 
+ // AI Processing Data
+ aiModel              String?      // "gpt-4", "claude-3", etc.
+ promptVersion        String?      // For A/B testing prompts
+ processingTimeMs     Int?
+ costCents            Int?         // Track AI API costs
+ 
+ // Timestamps
+ createdAt            DateTime     @default(now())
+ updatedAt            DateTime     @updatedAt
+ completedAt          DateTime?
+ 
+ // Relations
+ usageLogs            UsageLog[]
+
+ @@map("analyses")
+}
+
+enum AnalysisType {
+ QUICK_SCAN        // Free tier - basic analysis
+ DEEP_DIVE         // Paid tier - comprehensive analysis
+ COMPETITOR_COMPARE // Compare with similar channels
+ GROWTH_STRATEGY   // Detailed growth recommendations
+
+ @@map("analysis_type")
+}
+
+enum AnalysisStatus {
+ PENDING
+ PROCESSING
+ COMPLETED
+ FAILED
+ CANCELLED
+
+ @@map("analysis_status")
+}
+
+//============================================================================
+// USER INTERACTIONS
+//============================================================================
+
+model SavedChannel {
+ id          String    @id @default(cuid())
+ userId      String
+ channelId   String
+ 
+ // Relations
+ user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+ channel     Channel   @relation(fields: [channelId], references: [id])
+ 
+ // Metadata
+ savedAt     DateTime  @default(now())
+ notes       String?   @db.Text
+ tags        String[]  // User-defined tags
+ 
+ @@unique([userId, channelId])
+ @@map("saved_channels")
+}
+
+model UsageLog {
+ id            String       @id @default(cuid())
+ userId        String
+ analysisId    String?
+ 
+ // Relations
+ user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+ analysis      Analysis?    @relation(fields: [analysisId], references: [id])
+ 
+ // Usage Data
+ action        UsageAction
+ resourceType  String       // "analysis", "export", "api_call"
+ resourceId    String?      // ID of the resource used
+ 
+ // Cost Tracking
+ costCents     Int?         // Cost in cents
+ quotaUsed     Int          @default(1)
+ 
+ // Metadata
+ ipAddress     String?
+ userAgent     String?
+ timestamp     DateTime     @default(now())
+
+ @@map("usage_logs")
+}
+
+enum UsageAction {
+ ANALYSIS_CREATED
+ ANALYSIS_VIEWED
+ CHANNEL_SEARCHED
+ DATA_EXPORTED
+ API_CALL_MADE
+
+ @@map("usage_action")
+}
+
+model Feedback {
+ id            String          @id @default(cuid())
+ userId        String
+ 
+ // Relations
+ user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+ // Feedback Data
+ type          FeedbackType
+ rating        Int?            // 1-5 scale
+ message       String?         @db.Text
+ context       String?         // What page/feature they were using
+ 
+ // Status
+ status        FeedbackStatus  @default(OPEN)
+ adminNotes    String?         @db.Text
+ 
+ // Timestamps
+ createdAt     DateTime        @default(now())
+ updatedAt     DateTime        @updatedAt
+
+ @@map("feedback")
+}
+
+enum FeedbackType {
+ BUG_REPORT
+ FEATURE_REQUEST
+ GENERAL_FEEDBACK
+ COMPLAINT
+ PRAISE
+
+ @@map("feedback_type")
+}
+
+enum FeedbackStatus {
+ OPEN
+ IN_PROGRESS
+ RESOLVED
+ CLOSED
+
+ @@map("feedback_status")
+}
