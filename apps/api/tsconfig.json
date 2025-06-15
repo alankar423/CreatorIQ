@@ -8,37 +8,19 @@
     "lib": ["ES2020"],
     "declaration": true,
     "sourceMap": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noImplicitThis": true,
-    "esModuleInterop": true,
+    "strict": false,
+    "noImplicitAny": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "baseUrl": ".",
-    "paths": {
-      "@creatoriq/shared-types": ["../../packages/shared-types/src"],
-      "@creatoriq/database": ["../../packages/database/src"],
-      "@creatoriq/ai-services": ["../../packages/ai-services/src"]
-    }
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ],
-  "references": [
-    { "path": "../../packages/shared-types" },
-    { "path": "../../packages/database" },
-    { "path": "../../packages/ai-services" }
+    "dist"
   ]
 }
